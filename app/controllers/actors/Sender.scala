@@ -38,7 +38,7 @@ object Sender {
   }
 
   def startListener = {
-    Logger.info("+++++++HOST+++++++++++" + Config.RABBITMQ_HOST);
+    Logger.info("++1+++++HOST+++++++++++" + Config.RABBITMQ_HOST);
     val connection = RabbitMQConnection.getConnection();
     // create the channel we use to send
     val sendingChannel = connection.createChannel();
