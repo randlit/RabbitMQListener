@@ -13,7 +13,8 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     "com.rabbitmq" % "amqp-client" % "2.8.1",
     "io.searchbox" % "jest" % "0.0.5",
-    "com.cloudphysics" % "jerkson_2.10" % "0.6.3",
+    "com.github.tototoshi" %% "play-json4s-native" % "0.2.0",
+    "com.github.tototoshi" %% "play-json4s-test-native" % "0.2.0" % "test",
     jdbc,
     anorm
   )

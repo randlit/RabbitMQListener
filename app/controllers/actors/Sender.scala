@@ -10,7 +10,13 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import play.api.Logger
 import io.searchbox.core.{Index, Delete, Get}
-import com.codahale.jerkson.Json
+import play.api.libs.json.JsValue
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Writes._
+import anorm.{NotAssigned, Id, Pk}
+import model.{ToJson, Item, Message}
+import com.github.tototoshi.play2.json4s.native.Json4s
 
 /**
  * Created with IntelliJ IDEA.
@@ -64,11 +70,9 @@ class SendingActor(channel: Channel, queue: String) extends Actor {
   }
 }
 
-case class Item(description: String, checkedOut: Boolean)
 
-case class Message(id: String, event: String, body: Option[Item])
 
-class ListeningActor(channel: Channel, queue: String) extends Actor {
+class ListeningActor(channel: Channel, queue: String) extends Actor  with ToJson{
 
   // called on the initial run
   def receive = {
@@ -85,11 +89,14 @@ class ListeningActor(channel: Channel, queue: String) extends Actor {
       // wait for the message
       val delivery = consumer.nextDelivery();
       val msg = new String(delivery.getBody());
+
       indexer(msg)
       // send the message to the provided callback function
       // and execute this in a subactor
       def indexer(entry: String) = {
-        val message = Json.parse[Message](entry)
+        val json: JsValue = Json.parse(entry);
+        val message = Json.fromJson[Message](json).get
+//        val message = Json.parse[Message](entry)
         val body = message.event match {
           case "update" => message.body
           case "checkout" => {
@@ -115,8 +122,7 @@ class ListeningActor(channel: Channel, queue: String) extends Actor {
           }
           case _ => null
         }
-        println(" [x] Message '" + Json.generate(message) + "'");
-        println(" [x] Json '" + Json.generate(body) + "'");
+        println(" [x] Message '" + Json.stringify(json) + "'");
         val index = new Index.Builder(body).id(message.id).index("randl").`type`("item").build()
         val writeRequest = client.execute(index)
         println("request -> ", writeRequest.getErrorMessage)
