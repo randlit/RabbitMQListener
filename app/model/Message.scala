@@ -41,10 +41,8 @@ object DataResponse {
   def toJson: JsValue = {
     val formatter = new SimpleDateFormat("HH:mm:ss:SSS");
     val c = Calendar.getInstance()
-    c.setTimeInMillis(time_running)
+    c.setTimeInMillis(System.currentTimeMillis() -init_time  )
     val dateFormatted = formatter.format(c.getTime);
-    val minTimeUnit.MILLISECONDS.toMinutes(millis)
-    val TimeUnit.MILLISECONDS.toHours(millis)
     val res = Response(msg_process, dateFormatted, avg_msg_process, totalDocs)
 
     Json.toJson(res)
