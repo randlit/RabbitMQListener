@@ -15,8 +15,9 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import anorm.{NotAssigned, Id, Pk}
-import model.{ToJson, Item, Message}
+import model.{DataResponse, ToJson, Item, Message}
 import com.github.tototoshi.play2.json4s.native.Json4s
+import java.util.Date
 
 /**
  * Created with IntelliJ IDEA.
@@ -71,8 +72,7 @@ class SendingActor(channel: Channel, queue: String) extends Actor {
 }
 
 
-
-class ListeningActor(channel: Channel, queue: String) extends Actor  with ToJson{
+class ListeningActor(channel: Channel, queue: String) extends Actor with ToJson {
 
   // called on the initial run
   def receive = {
@@ -96,7 +96,7 @@ class ListeningActor(channel: Channel, queue: String) extends Actor  with ToJson
       def indexer(entry: String) = {
         val json: JsValue = Json.parse(entry);
         val message = Json.fromJson[Message](json).get
-//        val message = Json.parse[Message](entry)
+        //        val message = Json.parse[Message](entry)
         val body = message.event match {
           case "update" => message.body
           case "checkout" => {
@@ -125,6 +125,8 @@ class ListeningActor(channel: Channel, queue: String) extends Actor  with ToJson
         println(" [x] Message '" + Json.stringify(json) + "'");
         val index = new Index.Builder(body).id(message.id).index("randl").`type`("item").build()
         val writeRequest = client.execute(index)
+        DataResponse.msg_process += 1
+        DataResponse.setExecutionTime()
         println("request -> ", writeRequest.getErrorMessage)
       }
     }

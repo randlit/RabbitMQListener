@@ -15,6 +15,7 @@ object ApplicationBuild extends Build {
     "io.searchbox" % "jest" % "0.0.5",
     "com.github.tototoshi" %% "play-json4s-native" % "0.2.0",
     "com.github.tototoshi" %% "play-json4s-test-native" % "0.2.0" % "test",
+    "org.elasticsearch" % "elasticsearch" % "0.90.2",
     jdbc,
     anorm
   )

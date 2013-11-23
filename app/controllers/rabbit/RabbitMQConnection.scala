@@ -37,13 +37,23 @@ object RabbitMQConnection {
 }
 
 object ElasticSearchRestIndexer {
-  val ES_SERVER = "http://24ehmqpf:aiegxx8odfk5lvps@oak-165896.eu-west-1.bonsai.io"
-  val clientConfig: ClientConfig =
-    new ClientConfig
-    .Builder(Config.ELASTICSEARCH_HOST)
-      .multiThreaded(true)
-      .build()
-  val factoryES: JestClientFactory = new JestClientFactory();
-  factoryES.setClientConfig(clientConfig);
-  val client: JestClient = factoryES.getObject();
+
+  private var connection: Option[JestClient] = None;
+
+  def client: JestClient = {
+    connection match {
+      case None => {
+        val clientConfig: ClientConfig =
+          new ClientConfig
+          .Builder(Config.ELASTICSEARCH_HOST)
+            .multiThreaded(true)
+            .build()
+        val factoryES: JestClientFactory = new JestClientFactory();
+        factoryES.setClientConfig(clientConfig)
+        factoryES.getObject()
+
+      }
+      case _ => connection.get
+    }
+  }
 }
